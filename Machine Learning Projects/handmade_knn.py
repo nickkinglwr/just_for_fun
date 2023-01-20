@@ -3,17 +3,18 @@ import pandas as pd
 
 
 class MyKNN:
-    def __init__(self, path, k = 9):
+    def __init__(self, path, k = 9, picture_data = False):
         '''
         Constructor for KNN object.
-        Takes in MNIST .csv file path and stores normalized pixel and label training data in Dataframes for later classifications.
+        Takes in training data file path and stores normalized pixel and label training data in Dataframes for later classifications.
         :param path: File path for MNIST training .csv
         :param k: K value for KNN classifier
         '''
         data = pd.read_csv(path)
         self.labels = data['label']
-        self.pix_data = data.drop('label', axis=1)
-        self.pix_data = self.pix_data / 255  # Normalize training pixel data; min=0, max=255
+        self.data = data.drop('label', axis=1)
+        if picture_data:
+            self.data = self.data / 255  # Normalize training pixel data; min=0, max=255
         self.k = k
 
     def set_k(self, k):
@@ -22,16 +23,17 @@ class MyKNN:
         '''
         self.k = k
 
-    def predict(self, path):
+    def predict(self, path, picture_data = False):
         '''
-        Predicts digit classes of a batch of pixel samples given in passed .csv.
+        Predicts classes of a batch of test samples given in passed .csv.
         Outputs the accuracy of prediction.
         :param path: File path for MNIST testing .csv
         '''
         tests = pd.read_csv(path)
         real_labels = tests['label']
         test_data = tests.drop('label', axis=1)
-        test_data = test_data / 255  # Normalize test pixel data; min=0, max=255
+        if picture_data:
+            test_data = test_data / 255  # Normalize test pixel data; min=0, max=255
 
         # Apply classification to every instance in testing data, store predicted labels in predictions
         predictions = test_data.apply(self.get_prediction, axis=1)
@@ -41,12 +43,12 @@ class MyKNN:
 
     def get_prediction(self, test_instance):
         '''
-        Classify digit label for single pixel sample.
-        :param test_instance: Pandas Series representing current test pixel sample to predict digit class for
+        Classify label for single testing sample.
+        :param test_instance: Pandas Series representing current test sample to predict digit class for
         :return: Predicted digit label
         '''
         # Calculate Euclidean distances (no sqrt) of test sample from every instance in training data
-        dists = pd.DataFrame(((np.tile(test_instance.to_numpy(), (self.pix_data.shape[0],1)) - self.pix_data.values) ** 2).sum(axis=1), columns=['dist'])
+        dists = pd.DataFrame(((np.tile(test_instance.to_numpy(), (self.data.shape[0],1)) - self.data.values) ** 2).sum(axis=1), columns=['dist'])
         dists['label'] = self.labels
 
         # Return most frequent (the mode) label present in K smallest (closest) distances, return only first prediction if tie.
@@ -79,4 +81,5 @@ while True:
         continue
 
     knn.set_k(k)
-    knn.predict('MNIST_test.csv')
+    test_path = input('Enter testing data file path:')
+    knn.predict(test_path)
