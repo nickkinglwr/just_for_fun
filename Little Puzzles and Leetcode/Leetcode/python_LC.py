@@ -36,3 +36,20 @@ def addTwoNumbers(self, l1: ListNode, l2: ListNode) -> ListNode:
             curr = curr.next
             l1 = l1.next
             l2 = l2.next
+            
+##### Longest Substring Without Repeating Characters #####
+# O(n) time O(n) space
+def lengthOfLongestSubstring(self, s: str) -> int:
+        if s == '':
+            return 0
+    
+        table = {}
+        i = 0
+        maxLen = 1
+        for j in range(len(s)):
+            if s[j] in table:
+                i = max(i, table[s[j]]+1)
+            table[s[j]] = j
+            maxLen = max(maxLen, j-i+1)
+            
+        return maxLen
