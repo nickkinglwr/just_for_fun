@@ -53,3 +53,24 @@ def lengthOfLongestSubstring(self, s: str) -> int:
             maxLen = max(maxLen, j-i+1)
             
         return maxLen
+        
+##### Trapping Rain Water #####
+# O(n) time O(1) space
+def trap(self, height: List[int]) -> int:
+        if not height:
+            return 0
+        
+        l, r = 0, len(height)-1
+        lmax, rmax = height[l], height[r]
+        water = 0
+        while l < r:
+            if rmax > lmax:
+                l += 1
+                lmax = max(height[l], lmax)
+                water += lmax - height[l]
+            else:
+                r -= 1
+                rmax = max(height[r], rmax)
+                water += rmax - height[r]
+
+        return water
